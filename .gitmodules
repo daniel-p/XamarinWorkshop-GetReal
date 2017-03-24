@@ -1,0 +1,3 @@
+[submodule "Firebase.Xamarin"]
+	path = Firebase.Xamarin
+	url = https://github.com/rlamasb/Firebase.Xamarin.git

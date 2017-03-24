@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:local="http://schemas.android.com/apk/res-auto"
+    android:minWidth="25px"
+    android:minHeight="25px"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:id="@+id/relativeLayout1">
+    <Mvx.MvxListView
+        local:MvxBind="ItemsSource Messages"
+        android:minWidth="25px"
+        android:minHeight="25px"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:id="@+id/messagesListView"
+        android:layout_weight="1"
+        android:layout_alignParentTop="true"
+        local:MvxItemTemplate="@layout/message_item" />
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="50dp"
+        android:orientation="horizontal">
+        <EditText
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:layout_weight="1"
+            android:id="@+id/textInputEditText1"
+            local:MvxBind="Text NewMessage" />
+        <Button
+            android:text="Send"
+            android:layout_width="wrap_content"
+            android:layout_height="match_parent"
+            android:id="@+id/button1"
+            android:layout_marginLeft="0.0dp"
+            local:MvxBind="Click SendMessageCommand" />
+    </LinearLayout>
+</LinearLayout>
