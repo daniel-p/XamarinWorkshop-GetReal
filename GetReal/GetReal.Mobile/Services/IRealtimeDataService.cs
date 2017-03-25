@@ -7,8 +7,8 @@ namespace GetReal.Mobile.Services
 {
     public interface IRealtimeDataService
 	{
-		void SendMessage(ChatMessage message);
+		string SendMessage(ChatMessage message);
 
-        void ObserveMessages(Action<ChatMessage> chatRoomUpdatedCallBack);
+        void ObserveMessages(Action<ChatMessage, string> chatRoomUpdatedCallBack);
     }
 }

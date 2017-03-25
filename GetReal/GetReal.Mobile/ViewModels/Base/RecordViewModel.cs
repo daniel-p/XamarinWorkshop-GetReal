@@ -9,11 +9,11 @@ namespace GetReal.Mobile.ViewModels.Base
 {
     public class RecordViewModel : BaseViewModel
     {
-        private string _id;
-        public string Id
+        private string _key;
+        public string Key
         {
-            get { return _id; }
-            set { SetProperty(ref _id, value); }
+            get { return _key; }
+            set { SetProperty(ref _key, value); }
         }
     }
 }

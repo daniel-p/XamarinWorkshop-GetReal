@@ -1,14 +1,6 @@
 ﻿using FirebaseSharp.Portable;
 using GetReal.Core.Models;
-using Newtonsoft.Json;
 using System;
-using System.Collections.Generic;
-using System.Collections.ObjectModel;
-using System.Linq;
-using System.Net.Http;
-using System.Net.Http.Headers;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace GetReal.Mobile.Services
 {
@@ -25,23 +17,17 @@ namespace GetReal.Mobile.Services
 			_app = new FirebaseApp(new Uri(DataBaseUrl));
 		}
 
-		public void SendMessage(ChatMessage message)
+		public string SendMessage(ChatMessage message)
         {
-            GenerateKey(message);
-			_app.Child($"/{KeyMessages}/{message.Id}").Set(message);
+			return _app.Child($"/{KeyMessages}").Push(message).Key;
         }
 
-		public void ObserveMessages(Action<ChatMessage> messageAddedCallback)
+		public void ObserveMessages(Action<ChatMessage, string> messageAddedCallback)
 		{
-			_app.Child(KeyMessages).On("child_added", (snapshot, callback, error) =>
+			_app.Child(KeyMessages).OrderByChild("Timestamp").On("child_added", (snapshot, callback, error) =>
 			{
-				messageAddedCallback(snapshot.Value<ChatMessage>());
+				messageAddedCallback(snapshot.Value<ChatMessage>(), snapshot.Key);
 			});
-		}
-
-		private void GenerateKey(Model model)
-		{
-			model.Id = string.IsNullOrEmpty(model.Id) ? Guid.NewGuid().ToString() : model.Id;
 		}
 
 	}

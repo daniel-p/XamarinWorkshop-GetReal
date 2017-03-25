@@ -2,18 +2,19 @@
 using GetReal.Mobile.Services;
 using GetReal.Mobile.ViewModels.Base;
 using MvvmCross.Core.ViewModels;
+using MvvmCross.Platform.Core;
 using System;
-using System.Collections.ObjectModel;
-using System.Linq;
-using System.Threading.Tasks;
 using System.Diagnostics;
+using System.Linq;
 
 namespace GetReal.Mobile.ViewModels.Chat
 {
     public class ChatRoomViewModel : RealtimeViewModel
 	{
 
-		private string _userName;
+        private readonly IMvxMainThreadDispatcher _dispatcher;
+
+        private string _userName;
 
         private string _newMessage;
         public string NewMessage
@@ -48,33 +49,30 @@ namespace GetReal.Mobile.ViewModels.Chat
 
 		private void SendMessage()
         {
-            string newMessageId = Guid.NewGuid().ToString();
             ChatMessageViewModel newMessage = new ChatMessageViewModel()
             {
-                Id = newMessageId,
                 Content = _newMessage,
                 IsBusy = true,
-				UserName = _userName
-					
+				UserName = _userName		
             };
 
             Messages.Add(newMessage);
 
-			ChatMessage message = new ChatMessage()
-			{
-				Id = newMessageId,
-				Content = _newMessage,
-				UserName = _userName,
-				DateCreated = DateTime.UtcNow
+            ChatMessage message = new ChatMessage()
+            {
+                Content = _newMessage,
+                UserName = _userName,
             };
 
             NewMessage = null;
-            RealtimeService.SendMessage(message);
+            
+            newMessage.Key = RealtimeService.SendMessage(message);
         }
 
-        public ChatRoomViewModel(IRealtimeDataService reatimeService) : base(reatimeService)
+        public ChatRoomViewModel(IRealtimeDataService reatimeService, IMvxMainThreadDispatcher dispatcher) : base(reatimeService)
         {
             Messages = new MvxObservableCollection<ChatMessageViewModel>();
+            _dispatcher = dispatcher;
         }
 
 		public void Init(string userName)
@@ -85,23 +83,26 @@ namespace GetReal.Mobile.ViewModels.Chat
 
         private void StartObservingMessages()
         {
-            RealtimeService.ObserveMessages(message =>
+            RealtimeService.ObserveMessages((message, key) =>
             {
-                ChatMessageViewModel existingMessage = Messages.FirstOrDefault(m => m.Id == message.Id);
-                if (existingMessage == null)
+                _dispatcher.RequestMainThreadAction(() =>
                 {
-					Debug.WriteLine(message.Id);
-                    Messages.Add(new ChatMessageViewModel()
+                    ChatMessageViewModel existingMessage = Messages.FirstOrDefault(m => m.Key == key);
+                    if (existingMessage == null)
                     {
-                        Id = message.Id,
-                        Content = message.Content,
-						UserName = message.UserName
-                    });
-                }
-                else
-                {
-                    existingMessage.IsBusy = false;
-                }
+                        Debug.WriteLine(key);
+                        Messages.Add(new ChatMessageViewModel()
+                        {
+                            Key = key,
+                            Content = message.Content,
+                            UserName = message.UserName
+                        });
+                    }
+                    else
+                    {
+                        existingMessage.IsBusy = false;
+                    }
+                });
             });
         }
     }
